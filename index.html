@@ -1542,6 +1542,66 @@
         ['walk-2', 'human', { preset: 'newbie' }, c => c.show(null, 'social-post', 0, still)],
         ['bus-stop', 'human', { preset: 'teacher' }],
       ],
+      'backdoor': [
+        ['hatch', 'clawd', { scale: 1.4 }],
+        ['at-hatch', 'human', { preset: 'courier' }, c => c.show(null, 'box', 0, still)],
+        ['supplier-1', 'human', { preset: 'courier', parts: { hair: 'sidepart' } }, c => c.show(null, 'barrel', 0, still)],
+        ['supplier-2', 'human', { preset: 'courier', parts: { hair: 'bun' } }, c => c.show(null, 'sack', 0, still)],
+      ],
+      'classroom': [
+        ['presenter', 'human', { preset: 'teacher' }, c => c.pose(null, 'present-l')],
+        ['seat-1', 'human', { preset: 'newbie' }, c => c.face(null, 'think')],
+        ['seat-2', 'human', { preset: 'colleague-a' }, c => c.pose(null, 'raise-r')],
+        ['seat-3', 'human', { preset: 'it' }],
+        ['seat-4', 'human', { preset: 'colleague-b' }, c => c.face(null, 'happy')],
+      ],
+      'office': [
+        ['desk-1', 'human', { preset: 'it' }],
+        ['desk-2', 'human', { preset: 'marketer' }, c => c.face(null, 'think')],
+        ['desk-3', 'human', { preset: 'designer' }, c => c.face(null, 'happy')],
+        ['walk', 'human', { preset: 'manager' }, c => c.face(null, 'happy')],
+      ],
+      'lobby': [
+        ['receptionist', 'human', { preset: 'hotel-desk' }, c => c.face(null, 'happy')],
+        ['visitor', 'human', { preset: 'traveler' }],
+        ['bellhop', 'human', { preset: 'bellhop' }, c => c.pose(null, 'guide-l')],
+        ['sofa', 'human', { preset: 'vip' }],
+      ],
+      'pantry': [
+        ['counter', 'human', { preset: 'colleague-b' }, c => c.show(null, 'bento', 0, still)],
+        ['table-1', 'human', { preset: 'colleague-a' }, c => c.face(null, 'happy')],
+        ['table-2', 'dog', { scale: .8 }],
+      ],
+      'server-room': [
+        ['aisle-1', 'human', { preset: 'it' }, c => c.show(null, 'laptop', 0, still)],
+        ['console', 'robot', {}, c => c.face(null, 'happy')],
+        ['aisle-2', 'server', {}],
+      ],
+      'home-office': [
+        ['desk', 'human', { preset: 'it' }],
+        ['stand', 'human', { preset: 'colleague-a' }, c => c.show(null, 'phone-call', 0, still)],
+        ['couch', 'cat', { scale: .8 }],
+      ],
+      'digital': [
+        ['left', 'bug', {}],
+        ['center', 'packet', {}, c => c.face(null, 'happy')],
+        ['right', 'shield', {}],
+      ],
+      'park': [
+        ['bench', 'human', { preset: 'elder-f' }, c => c.face(null, 'happy')],
+        ['path-1', 'human', { preset: 'tourist' }],
+        ['path-2', 'human', { preset: 'kid-girl', scale: .8 }],
+      ],
+      'factory': [
+        ['floor-1', 'human', { preset: 'technician' }],
+        ['floor-2', 'human', { preset: 'manager' }, c => c.pose(null, 'point-l')],
+        ['forklift', 'human', { preset: 'courier' }, c => c.show(null, 'box', 0, still)],
+      ],
+      'plain-stage': [
+        ['left', 'human', { preset: 'teacher' }, c => c.pose(null, 'present-r')],
+        ['center', 'clawd', {}, c => c.pose(null, 'arms-up')],
+        ['right', 'robot', {}, c => c.face(null, 'happy')],
+      ],
     };
     const CROWD = { 'expo-booth': { count: 7, x0: 140, x1: 1140, ground: 500, scale: .42, seed: 4 } };  // 背景群眾（畫在演員後面）
     let sc = null, tl = null;
