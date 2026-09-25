@@ -198,6 +198,7 @@
       <div class="group"><span class="eyebrow">time</span><div class="chips" id="timeChips"></div></div>
       <div class="group"><span class="eyebrow">check</span><div class="chips" id="checkChips"></div></div>
       <div class="group"><span class="eyebrow">spots</span><ul class="spotlist" id="spotList"></ul></div>
+      <p class="legend" id="castCheck"></p>
       <p class="legend">虛線以下是字幕區（y ≥ 610px），不要放重要畫面。時段切換是換調色盤，漸變示範會在 5 秒內從白天換到晚上。</p>
     </div>
   </section>
@@ -696,8 +697,10 @@
       host = $(host);
       var type = opts.character || 'clawd', def = DATA.characters[type];
       if (!def) throw new Error('AnimKit：沒有角色 ' + type);
+      var presetLabel = null;
       if (opts.preset) {   // 固定班底：預設的零件／配色／配件，mount 參數可再覆寫
         var pr = (def.presets || {})[opts.preset];
+        presetLabel = pr && pr.label;
         if (!pr) throw new Error('AnimKit：' + type + ' 沒有預設角色 ' + opts.preset);
         opts = Object.assign({}, opts, {
           parts: Object.assign({}, pr.parts, opts.parts), colors: Object.assign({}, pr.colors, opts.colors),
@@ -751,6 +754,18 @@
         if (hint && def.poses[hint]) pose0 = pose0 || hint;
       });
       if (pose0) { var tl1 = gsap.timeline({ paused: true }); c.pose(tl1, pose0, 0, { dur: 0 }); tl1.progress(1).kill(); }
+      // 開場外觀（AnimKit.checkCast 用）：上場時就記下來，不看時間軸跑到哪
+      var parts0 = opts.parts || {}, colors0 = opts.colors || {}, head = null;
+      (opts.wear || []).forEach(function (n) { var m = c._mount(c._resolve(n)); if (m.slot === 'head') head = c._resolve(n); });
+      c.look = {
+        type: type, label: (presetLabel || def.label || type) + (at ? '（x=' + Math.round(at.x) + '）' : ''),
+        hair: def.parts.hair ? (parts0.hair || def.defaults.hair) : null,
+        outfit: def.parts.outfit ? (parts0.outfit || def.defaults.outfit) : null,
+        top: String(colors0.top || (def.colors || {}).top || '').toLowerCase(), head: head,
+        uniform: opts.uniform || null, extra: !!opts.extra,
+        sig: type + '|' + (opts.preset || '') + '|' + JSON.stringify(parts0) + '|' + JSON.stringify(colors0)
+      };
+      svg._ak = c;
       return c;
     },
     /** 放場景：bg 放在角色後面的容器，opts.fg 放在角色前面的容器（兩者 position:absolute、左上對齊舞台） */
@@ -778,6 +793,27 @@
     props: function (character) {
       return Object.keys(DATA.props).filter(function (n) { return !character || mountOf(DATA.props[n], character); });
     },
+    /** 同畫面角色好不好分辨（放好角色、排時間軸之前跑）：root＝舞台（預設整頁）。
+     *  人形：髮型一樣（有戴帽子就比帽子）、或衣服一樣（同樣式＋同上衣色）→ 列出來；
+     *  非人形：同種類、同預設、同配色＝長得一樣。背景群眾（crowd）不檢查；mount 帶 uniform: '群組名' 的同組角色可以穿一樣的衣服（例：三個服務生），髮型還是要不同。
+     *  回傳問題清單（空陣列＝OK），有問題時也會 console.warn。 */
+    checkCast: function (root) {
+      root = root ? $(root) : document;
+      var list = [].slice.call(root.querySelectorAll('svg.ak-char')).map(function (s) { return s._ak; })
+        .filter(function (c) { return c && c.look && !c.look.extra; });
+      var out = [];
+      for (var i = 0; i < list.length; i++) for (var j = i + 1; j < list.length; j++) {
+        var a = list[i].look, b = list[j].look, who = a.label + ' 和 ' + b.label;
+        if (a.hair != null && b.hair != null) {
+          if ((a.head || 'hair:' + a.hair) === (b.head || 'hair:' + b.hair))
+            out.push(who + '：' + (a.head ? '戴一樣的帽子（' + a.head + '）' : '髮型一樣（' + a.hair + '）'));
+          if (a.outfit === b.outfit && a.top === b.top && !(a.uniform && a.uniform === b.uniform))
+            out.push(who + '：衣服一樣（' + a.outfit + '、' + a.top + '）');
+        } else if (a.type === b.type && a.sig === b.sig) out.push(who + '：長得一樣');
+      }
+      if (out.length && global.console) console.warn('AnimKit.checkCast：同畫面角色不好分辨\n' + out.join('\n'));
+      return out;
+    },
     /** 配件掛在某角色身上的方式（slot、anchor、pose…）；不適用回傳 null */
     mountOf: function (name, character) { return mountOf(DATA.props[name], character); },
     /** 一群路人（背景群眾）：隨機髮型與配色，seed 固定就每次一樣。
@@ -800,7 +836,7 @@
           var d = document.createElement('div'); d.style.position = 'absolute'; host.appendChild(d);
           var skin = pick(pal.skin), top = pick(pal.top);
           members.push(AnimKit.mount(d, {
-            character: type, scale: scale * (1 - r * 0.1), x: x + (rnd() - 0.5) * 24, ground: opts.ground - r * gap,
+            character: type, scale: scale * (1 - r * 0.1), x: x + (rnd() - 0.5) * 24, ground: opts.ground - r * gap, extra: true,
             parts: { hair: pick(def.parts.hair) },
             colors: { skin: skin[0], 'skin-shade': skin[1], hair: pick(pal.hair), top: top[0], 'top-shade': top[1], bottom: pick(pal.bottom) }
           }));
@@ -1534,7 +1570,7 @@
       ],
       'expo-booth': [
         ['staff', 'human', { preset: 'marketer' }, c => c.pose(null, 'present-r')],
-        ['visitor-1', 'human', { preset: 'client' }], ['visitor-2', 'human', { preset: 'customer' }, c => c.show(null, 'gift', 0, still)],
+        ['visitor-1', 'human', { preset: 'client' }], ['visitor-2', 'human', { preset: 'customer', parts: { hair: 'bob' } }, c => c.show(null, 'gift', 0, still)],
       ],
       'store': [
         ['cashier', 'human', { preset: 'colleague-b' }],
@@ -1553,20 +1589,21 @@
       'backdoor': [
         ['hatch', 'clawd', { scale: 1.4 }],
         ['at-hatch', 'human', { preset: 'courier' }, c => c.show(null, 'box', 0, still)],
-        ['supplier-1', 'human', { preset: 'courier', parts: { hair: 'sidepart' } }, c => c.show(null, 'barrel', 0, still)],
-        ['supplier-2', 'human', { preset: 'courier', parts: { hair: 'bun' } }, c => c.show(null, 'sack', 0, still)],
+        // 三家不同的供應商：衣服、髮型都不一樣（同畫面好分辨）
+        ['supplier-1', 'human', { parts: { hair: 'sidepart', outfit: 'polo', lower: 'pants' }, colors: { top: '#3E9E6A', 'top-shade': '#2F8456' } }, c => c.show(null, 'barrel', 0, still)],
+        ['supplier-2', 'human', { parts: { hair: 'bun', outfit: 'apron', lower: 'pants' }, colors: { top: '#5B8DD9', 'top-shade': '#4674BD' } }, c => c.show(null, 'sack', 0, still)],
       ],
       'classroom': [
         ['presenter', 'human', { preset: 'teacher' }, c => c.pose(null, 'present-l')],
         ['seat-1', 'human', { preset: 'newbie' }, c => c.face(null, 'think')],
         ['seat-2', 'human', { preset: 'colleague-a' }, c => c.pose(null, 'raise-r')],
-        ['seat-3', 'human', { preset: 'it' }],
+        ['seat-3', 'human', { preset: 'it', parts: { hair: 'curly' } }],
         ['seat-4', 'human', { preset: 'colleague-b' }, c => c.face(null, 'happy')],
       ],
       'office': [
         ['desk-1', 'human', { preset: 'it' }],
         ['desk-2', 'human', { preset: 'marketer' }, c => c.face(null, 'think')],
-        ['stand-1', 'human', { preset: 'manager' }, c => { c.pose(null, 'point-l'); c.face(null, 'happy'); }],
+        ['stand-1', 'human', { preset: 'executive' }, c => { c.pose(null, 'point-l'); c.face(null, 'happy'); }],
         ['stand-2', 'human', { preset: 'designer' }, c => c.show(null, 'tablet', 0, still)],
       ],
       'lobby': [
@@ -1628,6 +1665,11 @@
           if (then) then(c);
         });
       }
+      // 同畫面角色好不好分辨（AnimKit.checkCast）
+      const issues = SS.cast ? AnimKit.checkCast('#sCast') : [];
+      $('#castCheck').textContent = !SS.cast || !CAST[SS.name] ? '' : issues.length
+        ? '同畫面角色不好分辨：' + issues.join('；') : '同畫面角色檢查 OK：髮型（或帽子）、衣服都不重複（AnimKit.checkCast）';
+      $('#castCheck').style.color = issues.length ? 'var(--clawd-deep)' : '';
       if (SS.spots) Object.entries(def.spots).forEach(([n, s]) => { const p = el('div', 'abs pin', '<b>' + n + '</b><i></i><s></s>'); p.style.left = s.x + 'px'; p.style.top = s.ground + 'px'; $('#sOver').appendChild(p); });
       if (SS.area && def.writeArea) Object.entries(def.writeArea).forEach(([n, a]) => { const r = el('div', 'abs area', '<span>writeArea.' + n + '</span>'); Object.assign(r.style, { left: a[0] + 'px', top: a[1] + 'px', width: a[2] + 'px', height: a[3] + 'px' }); $('#sOver').appendChild(r); });
       $('#sOver').appendChild(el('div', 'abs safe', '<span>字幕區</span>'));
