@@ -1,0 +1,104 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>腳本審閱：什麼是 API？</title><!-- 由 svg_anime/tools/script_sheet.py 產生；改內容請改 script.json --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Noto+Sans+TC:wght@500;700;900&family=JetBrains+Mono:wght@500;700&display=swap"><style>
+:root{--bench:#E4E7E2;--panel:#fff;--ink:#1C1F1D;--soft:#5F665F;--rule:#C9D0C8;--accent:#B65C3F;--ok:#2F8456;--hint:#8A6412;
+--pix:"Silkscreen",ui-monospace,monospace;--sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,Consolas,monospace;color-scheme:light}
+html{scrollbar-gutter:stable}html,body{margin:0;background:var(--bench);color:var(--ink);font-family:var(--sans)}*{box-sizing:border-box}
+.page{max-width:1200px;margin:0 auto;padding:28px 16px 56px;display:flex;flex-direction:column;gap:28px}
+.eyebrow{font-family:var(--pix);font-size:12px;letter-spacing:.08em;color:var(--accent);text-transform:uppercase}
+h1{margin:4px 0 8px;font-size:clamp(26px,3.4vw,38px);font-weight:900}h2{margin:0 0 12px;font-size:20px;font-weight:900;display:flex;align-items:baseline;gap:10px}h2 .eyebrow{font-size:11px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--soft);font-size:15px}.meta b{color:var(--ink)}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.badge{padding:7px 12px;border-radius:6px;border:1.5px solid var(--ink);font-weight:700;font-size:14px;background:var(--panel)}
+.badge.ok{border-color:var(--ok);color:var(--ok)}.badge.bad{border-color:var(--accent);color:var(--accent);background:#FBE9E1}.badge.hint{border-color:#C9962B;color:var(--hint);background:#FFF6DA}
+.card{background:var(--panel);border:1.5px solid var(--ink);border-radius:10px;padding:14px 18px}
+.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:820px;background:var(--panel);border:1.5px solid var(--ink);font-size:14px;line-height:1.55}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--rule);vertical-align:top}th{font-size:12px;color:var(--soft);background:#F4F6F2}
+.term{color:var(--accent)}a{color:#2F4A6A}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.chip{font-size:12px;font-weight:700;border:1.5px solid var(--ink);border-radius:5px;padding:2px 8px;background:var(--panel);white-space:nowrap}
+.chip.q{border-color:#2F4A6A;color:#2F4A6A}.lab{font-size:12px;color:var(--soft);font-weight:700;margin-right:6px}.miss{color:var(--accent);font-weight:700;font-size:12px}
+.goals{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:12px;font-size:16px;line-height:1.5}.goals .chips{margin-top:6px}
+.seg{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}.seghead{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px}
+.seghead h3{margin:0;font-size:19px;font-weight:900}.sid{font-family:var(--mono);color:var(--accent);margin-right:8px}.when{font-family:var(--mono);font-size:13px;color:var(--soft)}
+.intent{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;font-size:14px;background:#F4F6F2;border-radius:8px;padding:10px 12px}@media(max-width:700px){.intent{grid-template-columns:1fr}}
+.lines{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.lines li{display:grid;grid-template-columns:44px 110px 1fr auto;gap:10px;align-items:baseline;padding:7px 4px;border-bottom:1px dashed var(--rule);font-size:16px;line-height:1.6}
+@media(max-width:700px){.lines li{grid-template-columns:40px 1fr;}.lines .cnt{grid-column:2}.lines .txt{grid-column:1/-1}}
+.ref{font-family:var(--mono);font-size:12px;color:var(--soft)}.who{font-size:13px;font-weight:700;color:#2F4A6A}.who.narr{color:var(--soft)}
+.cnt{font-family:var(--mono);font-size:11px;color:var(--soft);white-space:nowrap}.first{background:#FFF3C4;border-radius:3px;padding:0 2px}
+.flag{display:inline-block;margin-left:8px;font-size:12px;font-weight:700;border-radius:4px;padding:0 6px}.flag.bad{background:#FBE9E1;color:var(--accent)}.flag.hint{background:#FFF6DA;color:var(--hint)}
+.quiz{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}.qcard p{margin:6px 0;font-weight:700;font-size:16px}.qhead{display:flex;justify-content:space-between;align-items:center}
+.qcard ol{margin:4px 0 10px;padding-left:24px;line-height:1.7}.qcard .ans{color:var(--ok);font-weight:700}.small{font-size:13px;color:var(--soft);line-height:1.6}
+.story{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}@media(max-width:900px){.story{grid-template-columns:1fr 1fr}}
+.story .card{padding:12px 14px;font-size:14px;line-height:1.55}.story .lab{display:block;margin-bottom:4px;color:var(--accent)}
+.arc{display:inline-block;font-size:14px;background:var(--ink);color:#fff;border-radius:5px;padding:1px 8px;margin-right:8px;vertical-align:2px}
+.cp{border:2px solid #2F4A6A;border-radius:10px;padding:10px 14px;background:#F2F6FB}.cphead{font-weight:900;color:#2F4A6A;font-size:14px;margin-bottom:4px}
+.cp ul{margin:0 0 6px;padding-left:20px;line-height:1.7;font-size:15px;font-weight:700}.cpnote{font-size:14px;line-height:1.6}
+.checks{display:flex;flex-direction:column;gap:10px;font-size:14px}.checks h4{margin:0 0 4px;font-size:14px}.checks ul{margin:0;padding-left:20px;line-height:1.7}.ok{color:var(--ok);font-weight:700;margin:0}
+</style></head><body><div class="page"><header><div class="eyebrow">script review · 教學腳本審閱</div><h1>什麼是 API？</h1><div class="meta"><span>課程：<b>（範例）API 入門</b></span><span>對象：<b>零基礎同仁（沒寫過程式也看得懂）</b></span><span>預估長度：<b>1:34</b>（目標 約 90 秒）</span><span>機密等級：<b>B（內部）</b></span><span>台詞 <b>22</b> 句、分段 <b>5</b> 段</span></div><div class="badges"><span class="badge ok">已定稿（2026-09-27）：台詞凍結</span><span class="badge ok">內容檢查：沒有要修正的</span><span class="badge hint">讀音待確認：4 處</span></div></header>
+<section><h2>故事線 <span class="eyebrow">story</span></h2><div class="story"><div class="card"><span class="lab">主角</span><div>小美（上班族）</div></div><div class="card"><span class="lab">想要</span><div>午休只有二十分鐘，想趕快吃到蛋炒飯</div></div><div class="card"><span class="lab">困難</span><div>想直接衝進廚房被擋下；點了菜單上沒有的滷肉飯，碰壁</div></div><div class="card"><span class="lab">解決</span><div>照菜單點餐，十分鐘就吃到蛋炒飯</div></div><div class="card"><span class="lab">回到真實</span><div>手機 App 查天氣、訂便當，也是照 API 文件「點餐」</div></div></div></section>
+<section><h2>學習目標 <span class="eyebrow">objectives</span></h2><div class="card"><ol class="goals">
+<li><div>能用一句話說明 API 的用途：讓一個程式照規格向另一個程式請求服務</div><div class="chips"><span class="lab">教：</span><span class="chip">S2 被擋下來</span><span class="chip">S5 回到你的 App</span><span class="lab">考：</span><span class="chip q">第 1 題</span></div></li>
+<li><div>能分辨請求（Request）和回應（Response），並知道回應也可能是錯誤</div><div class="chips"><span class="lab">教：</span><span class="chip">S3 點錯了</span><span class="chip">S4 十分鐘上菜</span><span class="chip">S5 回到你的 App</span><span class="lab">考：</span><span class="chip q">第 2 題</span></div></li>
+<li><div>能說明呼叫 API 的一方只要照文件送出請求，不需要知道對方內部怎麼運作</div><div class="chips"><span class="lab">教：</span><span class="chip">S2 被擋下來</span><span class="chip">S4 十分鐘上菜</span><span class="chip">S5 回到你的 App</span><span class="lab">考：</span><span class="chip q">第 3 題</span></div></li>
+</ol></div></section>
+<section><h2>比喻對照表 <span class="eyebrow">metaphor → term</span></h2><div class="table-wrap"><table><tr><th>比喻</th><th>術語</th><th>正確定義</th><th>出處</th><th>比喻不像的地方（避免誤解）</th></tr>
+<tr><td><b>顧客</b></td><td><b class="term">呼叫端（Client）</b></td><td>發出請求、使用對方服務的程式。</td><td><a href="https://developer.mozilla.org/en-US/docs/Glossary/API">MDN Web Docs：API（Glossary）</a></td><td>顧客可以臨時改口、跟服務生聊天；程式只能照 API 規格送出固定格式的請求。</td></tr>
+<tr><td><b>菜單</b></td><td><b class="term">API 文件</b></td><td>說明有哪些功能可以用、請求要怎麼寫、回應長什麼樣子。</td><td><a href="https://developer.mozilla.org/en-US/docs/Glossary/API">MDN Web Docs：API（Glossary）</a></td><td>菜單只寫菜名和價錢；API 文件還會寫每個欄位的格式和可能的錯誤代碼，細很多。</td></tr>
+<tr><td><b>服務生</b></td><td><b class="term">API</b></td><td>一個軟體提供給其他程式使用的一組功能與規則，讓程式（而不是人）能和它互動：規定能請求什麼、怎麼請求、會得到什麼。</td><td><a href="https://developer.mozilla.org/en-US/docs/Glossary/API">MDN Web Docs：API（Glossary）</a></td><td>API 不是一個人、也不會自己判斷；它是一套規則，格式不對就直接回錯誤，不會幫你猜。</td></tr>
+<tr><td><b>點單</b></td><td><b class="term">請求（Request）</b></td><td>呼叫端照 API 規格送出的訊息，寫清楚要做什麼、帶哪些資料。</td><td><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages">MDN Web Docs：HTTP messages</a></td><td>點單寫錯，服務生可能會問你；請求格式錯了，對方會直接回錯誤。</td></tr>
+<tr><td><b>主廚與廚房</b></td><td><b class="term">伺服器（Server）</b></td><td>接到請求後實際處理的程式或系統。</td><td><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages">MDN Web Docs：HTTP messages</a></td><td>伺服器不一定是「做」出新東西，也可能是查資料、計算、再轉給別的系統。</td></tr>
+<tr><td><b>端回來的餐點</b></td><td><b class="term">回應（Response）</b></td><td>伺服器處理完回傳的結果：成功的資料，或錯誤訊息加狀態碼。</td><td><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages">MDN Web Docs：HTTP messages</a></td><td>餐點端回來通常就是成功；回應可能是錯誤，例如 404 表示找不到請求的東西。</td></tr>
+</table></div></section>
+<section><h2>分段腳本 <span class="eyebrow">script</span></h2>
+<article class="card seg"><div class="seghead"><h3><span class="arc">起</span><span class="sid">S1</span>趕時間的午餐</h3><span class="when">0:03 – 0:14（約 11 秒）</span><div class="chips"><span class=lab>情境（不直接教）</span></div></div><div class="intent"><div><span class="lab">學完要會</span>（情境）帶出主角和目標。</div><div><span class="lab">畫面要表達</span>十二點，小美衝進新開的餐廳，看到後面就是廚房。</div></div><ol class="lines">
+<li><span class="ref">s1.1</span><span class="who narr">旁白</span><span class="txt">中午十二點，小美只有二十分鐘吃午餐。</span><span class="cnt">16 字 · 3.6 秒</span></li>
+<li><span class="ref">s1.2</span><span class="who">小美（顧客）</span><span class="txt">好餓……這家新開的，有蛋炒飯嗎？</span><span class="cnt">12 字 · 2.7 秒</span></li>
+<li><span class="ref">s1.3</span><span class="who narr">旁白</span><span class="txt">她看到廚房就在後面，乾脆直接走過去。</span><span class="cnt">16 字 · 3.6 秒</span></li>
+</ol>
+</article>
+<article class="card seg"><div class="seghead"><h3><span class="arc">承</span><span class="sid">S2</span>被擋下來</h3><span class="when">0:15 – 0:31（約 15 秒）</span><div class="chips"><span class=chip>目標 1</span><span class=chip>目標 3</span></div></div><div class="intent"><div><span class="lab">學完要會</span>知道 API 文件是什麼；知道不用進廚房、不用懂怎麼煮。</div><div><span class="lab">畫面要表達</span>阿哲擋在廚房門口，遞上菜單。</div></div><ol class="lines">
+<li><span class="ref">s2.1</span><span class="who">阿哲（服務生）</span><span class="txt">客人不好意思，廚房不能進去喔！</span><span class="cnt">13 字 · 2.9 秒</span></li>
+<li><span class="ref">s2.2</span><span class="who">阿哲（服務生）</span><span class="txt">想吃什麼看菜單點，我幫您送進去。</span><span class="cnt">14 字 · 3.1 秒</span></li>
+<li><span class="ref">s2.3</span><span class="who narr">旁白</span><span class="txt">原來客人不用進廚房，也不用知道菜怎麼煮。</span><span class="cnt">18 字 · 4.0 秒</span></li>
+<li><span class="ref">s2.4</span><span class="who narr">旁白</span><span class="txt">照菜單點就好——這份菜單，就像 <b class="first" title="術語第一次出現"><b class="first" title="術語第一次出現"><b class="first" title="術語第一次出現">API</b> 文件</b></b>。</span><span class="cnt">17 字 · 3.8 秒</span></li>
+</ol>
+<div class="cp"><div class="cphead">暫停點：重點總結</div><ul><li>API 文件就像菜單：列出能點什麼、要怎麼點。</li><li>呼叫的一方不用進廚房，也不用知道對方怎麼做。</li></ul><div class="cpnote"><span class="lab">補充（一起顯示）</span>想一想：你用過哪些 App 也是「只看菜單、不進廚房」？像外送、查天氣、地圖導航。</div></div>
+</article>
+<article class="card seg"><div class="seghead"><h3><span class="arc">轉</span><span class="sid">S3</span>點錯了</h3><span class="when">0:32 – 0:48（約 15 秒）</span><div class="chips"><span class=chip>目標 2</span></div></div><div class="intent"><div><span class="lab">學完要會</span>知道回應也可能是錯誤，例如 404。</div><div><span class="lab">畫面要表達</span>小美點了菜單上沒有的滷肉飯，被打回票；她重看菜單改點。</div></div><ol class="lines">
+<li><span class="ref">s3.1</span><span class="who">小美（顧客）</span><span class="txt">那我要一碗滷肉飯！</span><span class="cnt">8 字 · 1.8 秒</span></li>
+<li><span class="ref">s3.2</span><span class="who">阿哲（服務生）</span><span class="txt">抱歉，菜單上沒有這道。</span><span class="cnt">9 字 · 2.0 秒</span></li>
+<li><span class="ref">s3.3</span><span class="who narr">旁白</span><span class="txt">點了菜單上沒有的，只會拿到「沒有」。</span><span class="cnt">14 字 · 3.1 秒</span></li>
+<li><span class="ref">s3.4</span><span class="who narr">旁白</span><span class="txt">程式也一樣，會收到錯誤代碼，例如 404：找不到。</span><span class="cnt">20 字 · 4.4 秒</span></li>
+<li><span class="ref">s3.5</span><span class="who">小美（顧客）</span><span class="txt">好吧……那蛋炒飯，不要蔥！</span><span class="cnt">9 字 · 2.0 秒</span></li>
+</ol>
+<div class="cp"><div class="cphead">暫停點：重點總結</div><ul><li>回應不一定是成功的，也可能是錯誤。</li><li>程式會收到錯誤代碼，例如 404 表示找不到。</li></ul><div class="cpnote"><span class="lab">補充（一起顯示）</span>想一想：拿到錯誤之後怎麼辦？檢查請求哪裡寫錯，改好再送一次，或告訴使用者。</div></div>
+</article>
+<article class="card seg"><div class="seghead"><h3><span class="arc">合</span><span class="sid">S4</span>十分鐘上菜</h3><span class="when">0:49 – 1:08（約 19 秒）</span><div class="chips"><span class=chip>目標 2</span><span class=chip>目標 3</span></div></div><div class="intent"><div><span class="lab">學完要會</span>知道請求、回應是什麼；對方內部不用管。</div><div><span class="lab">畫面要表達</span>點單送進廚房、主廚在裡面忙；蛋炒飯端上桌，小美開心。</div></div><ol class="lines">
+<li><span class="ref">s4.1</span><span class="who narr">旁白</span><span class="txt">阿哲照格式寫好點單送進廚房：這就是<b class="first" title="術語第一次出現"><b class="first" title="術語第一次出現">請求</b></b>，<b class="first" title="術語第一次出現">Request</b>。<span class="flag hint">「Request」沒標唸法</span></span><span class="cnt">25 字 · 5.6 秒</span></li>
+<li><span class="ref">s4.2</span><span class="who narr">旁白</span><span class="txt">主廚在裡面怎麼煮，小美完全不用管。</span><span class="cnt">15 字 · 3.3 秒</span></li>
+<li><span class="ref">s4.3</span><span class="who">阿哲（服務生）</span><span class="txt">您的蛋炒飯，不加蔥！</span><span class="cnt">8 字 · 1.8 秒</span></li>
+<li><span class="ref">s4.4</span><span class="who">小美（顧客）</span><span class="txt">才十分鐘，太好了！</span><span class="cnt">7 字 · 1.6 秒</span></li>
+<li><span class="ref">s4.5</span><span class="who narr">旁白</span><span class="txt">端回來的這盤菜，就是<b class="first" title="術語第一次出現"><b class="first" title="術語第一次出現">回應</b></b>，<b class="first" title="術語第一次出現">Response</b>。<span class="flag hint">「Response」沒標唸法</span></span><span class="cnt">19 字 · 4.2 秒</span></li>
+</ol>
+<div class="cp"><div class="cphead">暫停點：重點總結</div><ul><li>請求（Request）：照格式送出去的點單。</li><li>回應（Response）：處理完端回來的結果。</li></ul><div class="cpnote"><span class="lab">補充（一起顯示）</span>看實例：程式送出的「點單」大概長這樣：{&quot;dish&quot;: &quot;蛋炒飯&quot;, &quot;note&quot;: &quot;不要蔥&quot;}</div></div>
+</article>
+<article class="card seg"><div class="seghead"><h3><span class="arc">收</span><span class="sid">S5</span>回到你的 App</h3><span class="when">1:10 – 1:31（約 21 秒）</span><div class="chips"><span class=chip>目標 1</span><span class=chip>目標 2</span><span class=chip>目標 3</span></div></div><div class="intent"><div><span class="lab">學完要會</span>把比喻接回真實世界，說得出三個重點。</div><div><span class="lab">畫面要表達</span>畫面換成手機 App；三張重點卡依序出現。</div></div><ol class="lines">
+<li><span class="ref">s5.1</span><span class="who narr">旁白</span><span class="txt">你手機上的 App 查天氣、訂便當，也是這樣「點餐」的。<span class="flag hint">多音字「便」（ㄅㄧㄢˋ／ㄆㄧㄢˊ）</span><span class="flag hint">「App」沒標唸法</span></span><span class="cnt">21 字 · 4.7 秒</span></li>
+<li><span class="ref">s5.2</span><span class="who narr">旁白</span><span class="txt">記住三件事。</span><span class="cnt">5 字 · 1.1 秒</span></li>
+<li><span class="ref">s5.3</span><span class="who narr">旁白</span><span class="txt">一，API 讓程式照規格向另一個程式請求服務。</span><span class="cnt">20 字 · 4.4 秒</span></li>
+<li><span class="ref">s5.4</span><span class="who narr">旁白</span><span class="txt">二，送出去的是請求，拿回來的是回應，也可能是錯誤。</span><span class="cnt">21 字 · 4.7 秒</span></li>
+<li><span class="ref">s5.5</span><span class="who narr">旁白</span><span class="txt">三，照文件點餐就好，廚房怎麼做交給對方。</span><span class="cnt">17 字 · 3.8 秒</span></li>
+</ol>
+</article>
+</section>
+<section><h2>常見誤解 <span class="eyebrow">misconceptions</span></h2><div class="table-wrap"><table><tr><th>學員可能以為</th><th>正確說法</th><th>在哪句澄清</th></tr>
+<tr><td>API 回應一定是成功的資料。</td><td>回應也可能是錯誤，程式會收到錯誤代碼（例如 404 找不到），要照著處理。</td><td class="small"><span class="ref">s3.2</span> 抱歉，菜單上沒有這道。<br><span class="ref">s3.3</span> 點了菜單上沒有的，只會拿到「沒有」。<br><span class="ref">s3.4</span> 程式也一樣，會收到錯誤代碼，例如 404：找不到。</td></tr>
+<tr><td>要懂對方系統怎麼寫，才能用它的 API。</td><td>只要照 API 文件送出請求；對方內部怎麼做不用管。</td><td class="small"><span class="ref">s2.3</span> 原來客人不用進廚房，也不用知道菜怎麼煮。<br><span class="ref">s4.2</span> 主廚在裡面怎麼煮，小美完全不用管。</td></tr>
+</table></div></section>
+<section><h2>評量題 <span class="eyebrow">quiz</span></h2><div class="quiz">
+<article class="card qcard"><div class="qhead"><b>第 1 題</b><span class="chip">目標 1</span></div><p>下列哪一個最接近 API 的用途？</p><ol type="A"><li class="ans">讓程式照規格向另一個程式請求服務 ✓</li><li class="">存放公司資料的資料庫</li><li class="">手機的作業系統</li></ol><div class="small"><span class="lab">答案在台詞</span><span class="ref">s5.3</span> 一，API 讓程式照規格向另一個程式請求服務。</div></article>
+<article class="card qcard"><div class="qhead"><b>第 2 題</b><span class="chip">目標 2</span></div><p>是非題：呼叫 API 拿到的回應，一定是成功的結果。</p><ol type="A"><li class="">對</li><li class="ans">錯 ✓</li></ol><div class="small"><span class="lab">答案在台詞</span><span class="ref">s3.3</span> 點了菜單上沒有的，只會拿到「沒有」。<br><span class="ref">s3.4</span> 程式也一樣，會收到錯誤代碼，例如 404：找不到。</div></article>
+<article class="card qcard"><div class="qhead"><b>第 3 題</b><span class="chip">目標 3</span></div><p>用 API 時，呼叫的一方需要知道什麼？</p><ol type="A"><li class="">對方系統內部怎麼運作</li><li class="ans">API 文件寫的請求格式 ✓</li><li class="">對方用哪一種程式語言</li></ol><div class="small"><span class="lab">答案在台詞</span><span class="ref">s2.3</span> 原來客人不用進廚房，也不用知道菜怎麼煮。<br><span class="ref">s4.2</span> 主廚在裡面怎麼煮，小美完全不用管。</div></article>
+</div></section>
+<section><h2>自動檢查 <span class="eyebrow">checks</span></h2><div class="card checks">
+<div><h4>要修正</h4><p class="ok">沒有：每條目標都有段落教到、都有評量題；每句 ≤ 28 字；用詞一致；出處都存在。</p></div>
+<div><h4>讀音待確認（確認過或改寫後在那句加 say 就不再提醒）</h4><ul><li>s4.1：「Request」沒標唸法</li><li>s4.5：「Response」沒標唸法</li><li>s5.1：多音字「便」（ㄅㄧㄢˋ／ㄆㄧㄢˊ）</li><li>s5.1：「App」沒標唸法</li></ul></div>
+<p class="small">預估長度用每秒 4.5 字＋停頓估算（開場 3.4 秒、換段 1.6 秒、旁白間 0.6 秒、對話間 0.35 秒、結尾 3.6 秒）；實際以配音長度為準。</p></div></section></div></body></html>
