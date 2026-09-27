@@ -122,6 +122,11 @@
   .playcover{left:0;top:0;width:1280px;height:720px;display:flex;align-items:center;justify-content:center;background:rgba(58,51,48,.18);cursor:pointer;border:0;padding:0}
   .playcover span{width:150px;height:150px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px -8px rgba(0,0,0,.4);margin-top:250px}
   .playcover svg{width:60px;height:60px;fill:#fff;margin-left:10px}
+  /* 音軌還沒載好（手機按下播放才開始下載）：畫面停在原地，顯示載入中 */
+  .loading{left:640px;top:485px;z-index:60;transform:translate(-50%,-50%);display:flex;align-items:center;gap:14px;padding:14px 28px 14px 18px;border-radius:999px;background:#fff;border:3px solid var(--ink);box-shadow:0 6px 0 rgba(58,51,48,.15);font-weight:900;font-size:26px;white-space:nowrap}
+  .loading[hidden]{display:none}
+  .loading i{width:30px;height:30px;box-sizing:border-box;border-radius:50%;border:5px solid var(--gold);border-top-color:var(--red);animation:spin .9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
 
   /* ── 暫停點：夾在出菜口的點單（播放器的一部分，不在動畫時間軸上）── */
   .cp{position:absolute;inset:0;z-index:5;display:flex;align-items:flex-start;justify-content:center;padding:3.2cqw 3cqw 0;background:rgba(58,51,48,.46);opacity:0;transition:opacity .25s ease}
@@ -182,7 +187,7 @@
     .clip{display:none}
     .t-top{font-size:13px}.ticket h3{font-size:22px}.t-sum li{font-size:17px}.t-extra p{font-size:15px}.t-extra code{font-size:14px}
   }
-  @media (prefers-reduced-motion:reduce){.cp,.ticket{transition:none}.caption div.swap{animation:none}}
+  @media (prefers-reduced-motion:reduce){.cp,.ticket{transition:none}.caption div.swap{animation:none}.loading i{animation:none}}
 </style>
 </head>
 <body>
@@ -205,6 +210,7 @@
       <div class="layer" id="ui"></div>
       <div class="abs caption" aria-live="polite"><div id="cap"></div></div>
       <button class="abs playcover" id="cover" type="button" aria-label="播放"><span><svg viewBox="0 0 16 16"><path d="M4 2l10 6-10 6z"/></svg></span></button>
+      <div class="abs loading" id="loading" role="status" hidden><i aria-hidden="true"></i>載入中…</div>
     </div>
     <div class="cp" id="cp" hidden role="dialog" aria-modal="false" aria-labelledby="cpTitle">
       <div class="clip" aria-hidden="true"></div>
@@ -1757,11 +1763,22 @@
     showCp(c); sync(); setBtn();
     bedStart(c);
   }
+  // 載入中：音軌還沒辦法往下播時（手機按下播放才開始下載、網路慢、剛跳段落），畫面停住等聲音；超過 0.25 秒才顯示，避免閃一下
+  const loader = $('#loading');
+  let loadT = 0, waited = false;
+  function setLoading(on) {
+    if (on) { if (!loadT) loadT = setTimeout(() => { loader.hidden = false; }, 250); }
+    else { clearTimeout(loadT); loadT = 0; loader.hidden = true; }
+  }
   function loop(ts) {
     if (!playing) return;
-    let t;
-    if (useAudio && isFinite(audio.duration) && !audio.paused) t = audio.currentTime;
-    else t = tl.time() + Math.min(.1, Math.max(0, (ts - lastTs) / 1000));
+    let t, wait = false;
+    if (useAudio && !audio.paused) {
+      if (audio.readyState >= 3 && !audio.seeking) t = audio.currentTime;
+      else { t = tl.time(); wait = true; }
+    } else t = tl.time() + Math.min(.1, Math.max(0, (ts - lastTs) / 1000));
+    if (waited && !wait) fadeFrom = ts;   // 等完才開始淡入
+    waited = wait; setLoading(wait);
     lastTs = ts;
     const nxt = CPS.find(c => c.armed && c.t >= tl.time() - .05);
     if (nxt && t >= nxt.t) { hitCp(nxt); return; }
@@ -1779,6 +1796,7 @@
     playText.textContent = playing ? '暫停' : (done ? '重播' : (openCp ? '繼續' : '播放'));
     playBtn.setAttribute('aria-label', playText.textContent);
     cover.style.display = playing || openCp || tl.time() > .05 ? 'none' : '';
+    if (!playing) setLoading(false);
   }
   function play() {
     const fromCp = !!openCp;   // 從暫停點繼續：音量從 30% 慢慢回來
@@ -1833,7 +1851,7 @@
   // 自檢用（不影響播放）：測試腳本讀狀態
   window.__player = { get t() { return tl.time(); }, get open() { return openCp && openCp.seg; }, get playing() { return playing; },
     get useAudio() { return useAudio; }, get bed() { return bedOn && { paused: bedOn.paused, vol: +bedOn.volume.toFixed(2), t: +bedOn.currentTime.toFixed(1) }; },
-    get mainVol() { return audio.volume; }, get mainPaused() { return audio.paused; }, seek, play, pause, CPS, CH, END };
+    get mainVol() { return audio.volume; }, get mainPaused() { return audio.paused; }, get loading() { return !loader.hidden; }, seek, play, pause, CPS, CH, END };
   window.__ready = true;
 })();
 </script>
